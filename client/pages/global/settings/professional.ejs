@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustes Profesionales - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/settings.css') %>">
+</head>
+<body>
+    <%- include('../header') %>
+
+    <main class="settings-page">
+        <div class="settings-container">
+            <aside class="settings-sidebar">
+                <nav class="settings-nav">
+                    <a href="/settings/account" class="nav-item">Ajustes De Cuenta</a>
+                    <a href="/settings/professional" class="nav-item active">Ajustes Del Perfil Profesional</a>
+                </nav>
+            </aside>
+
+            <section class="settings-content">
+                <h1>AJUSTES DEL PROFESIONAL</h1>
+
+                <form id="professionalForm" onsubmit="handleSubmit(event)">
+                    <div class="settings-section">
+                        <h2>NÚMERO DE TELÉFONO</h2>
+                        <div class="input-group">
+                            <input type="tel" name="phone" value="<%= user.phone || '' %>" placeholder="Ingresa tu número de teléfono">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>TIPO DE ATENCIÓN</h2>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="online" value="true" <%= user.presential && user.presential.online ? 'checked' : '' %>>
+                                Atención Online
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="presential" value="true" <%= user.presential && user.presential.presential ? 'checked' : '' %>>
+                                Atención Presencial
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>ATENCIÓN DIRIGIDA</h2>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="niños" value="true" <%= user.patients_type && user.patients_type.niños ? 'checked' : '' %>>
+                                Niños
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="adolescentes" value="true" <%= user.patients_type && user.patients_type.adolescentes ? 'checked' : '' %>>
+                                Adolescentes
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="adultos" value="true" <%= user.patients_type && user.patients_type.adultos ? 'checked' : '' %>>
+                                Adultos
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="parejas" value="true" <%= user.patients_type && user.patients_type.parejas ? 'checked' : '' %>>
+                                Parejas
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="familias" value="true" <%= user.patients_type && user.patients_type.familias ? 'checked' : '' %>>
+                                Familias
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>CATEGORÍA PROFESIONAL</h2>
+                        <div class="input-group">
+                            <select name="category_id" id="categorySelect">
+                                <option value="">Selecciona una categoría</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>ORIENTACIÓN</h2>
+                        <div class="input-group">
+                            <select name="orientation_id" id="orientationSelect">
+                                <option value="">Selecciona una orientación</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h2>UBICACIÓN</h2>
+                        <div class="input-group">
+                            <select name="location_id" id="locationSelect">
+                                <option value="">Selecciona una ubicación</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>IDIOMAS</h2>
+                        <div class="input-group">
+                            <input type="text" name="languages" value="<%= user.languages?.languages?.join(', ') || '' %>" placeholder="Ingresa los idiomas separados por comas">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>DESCRIPCIÓN CORTA</h2>
+                        <div class="input-group">
+                            <textarea name="short_description" placeholder="Escribe una breve descripción de tu perfil profesional"><%= user.short_description || '' %></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-button">
+                            <i class='bx bx-save'></i>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../footer') %>
+
+    <script>
+        // Load categories and locations
+        async function loadOptions() {
+            try {
+                const response = await fetch('/api/settings/options');
+                const data = await response.json();
+                
+                const categorySelect = document.getElementById('categorySelect');
+                const locationSelect = document.getElementById('locationSelect');
+                const orientationSelect = document.getElementById('orientationSelect');
+
+                // Obtener valores preseleccionados desde el servidor
+                const userCategoryId = <%- JSON.stringify(user.category_id) %>;
+                const userLocationId = <%- JSON.stringify(user.location_id) %>;
+                const userOrientationId = <%- JSON.stringify(user.orientation_id) %>;
+
+                // Verificar si los selects existen
+                if (!categorySelect || !orientationSelect || !locationSelect) {
+                    console.error('Select elements not found');
+                    return;
+                }
+
+                // Verificar si los IDs coinciden con las opciones
+                const categoryMatch = data.categories.some(category => String(category.id) === String(userCategoryId));
+                const orientationMatch = data.orientations.some(orientation => String(orientation.id) === String(userOrientationId));
+
+                if (!categoryMatch) {
+                    console.warn('No category found with userCategoryId:', userCategoryId);
+                }
+
+                if (!orientationMatch) {
+                    console.warn('No orientation found with userOrientationId:', userOrientationId);
+                }
+
+                // Populate categories
+                data.categories.forEach(category => {
+                    const option = new Option(category.name, category.id);
+                    if (String(category.id) === String(userCategoryId)) {
+                        option.selected = true;
+                    }
+                    categorySelect.appendChild(option);
+                });
+
+                // Populate orientations
+                data.orientations.forEach(orientation => {
+                    const option = new Option(orientation.name, orientation.id);
+                    if (String(orientation.id) === String(userOrientationId)) {
+                        option.selected = true;
+                    }
+                    orientationSelect.appendChild(option);
+                });
+
+                // Populate locations
+                data.locations.forEach(location => {
+                    const option = new Option(location.name, location.id);
+                    if (String(location.id) === String(userLocationId)) {
+                        option.selected = true;
+                    }
+                    locationSelect.appendChild(option);
+                });
+
+                handleCategoryChange();
+                categorySelect.addEventListener('change', handleCategoryChange);
+                
+            } catch (error) {
+                console.error('Error loading options:', error);
+            }
+        }
+
+        function handleCategoryChange() {
+            const categorySelect = document.getElementById('categorySelect');
+            const orientationSelect = document.getElementById('orientationSelect');
+            const selectedCategory = categorySelect.value; // Obtener la categoría seleccionada
+
+            // Verificar si la categoría seleccionada es "Psicólogo"
+            if (selectedCategory == 1) {
+                orientationSelect.closest('.settings-section').classList.remove('hidden'); // Mostrar la sección de orientación
+            } else {
+                orientationSelect.closest('.settings-section').classList.add('hidden'); // Ocultar la sección de orientación
+                orientationSelect.value = ''; // Resetear la selección de orientación
+            }
+        }
+
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+
+            
+            
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Handle multiple checkboxes for patients_type
+                data.patients_type = Array.from(form.querySelectorAll('input[name="patients_type"]:checked')).map(cb => cb.value);
+
+                const response = await fetch('/api/settings/professional', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const responseData = await response.json();
+                    throw new Error(responseData.error || 'Error al actualizar el perfil profesional');
+                }
+
+                alert('Perfil profesional actualizado correctamente');
+                location.reload();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Load options when page loads
+        document.addEventListener('DOMContentLoaded', loadOptions);
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<aside class="admin-sidebar">
+    <div class="sidebar-header">
+        <a href="/"><img src="<%= getFile('global/assets/images/logo_black.png') %>" alt="Logo" class="sidebar-logo"></a>
+        <button class="sidebar-toggle">
+            <i class='bx bx-menu'></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <span class="nav-section-title">Principal</span>
+            <a href="/control" class="nav-item active">
+                <i class='bx bx-grid-alt'></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">Gestión</span>
+            <a href="/control/users" class="nav-item">
+                <i class='bx bx-briefcase'></i>
+                <span>Profesionales</span>
+            </a>
+            <a href="/control/pending" class="nav-item">
+                <i class='bx bx-notepad'></i>
+                <span>Registros pendientes</span>
+            </a>
+            <a href="/control/users/register" class="nav-item">
+                <i class='bx bx-user-plus'></i>
+                <span>Registrar usuarios</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <span class="nav-section-title">Configuración</span>
+            <a href="/control/settings" class="nav-item">
+                <i class='bx bx-cog'></i>
+                <span>Ajustes</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-btn">
+            <i class='bx bx-log-out'></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </div>
+</aside>

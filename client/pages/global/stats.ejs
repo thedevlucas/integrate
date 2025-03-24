@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <style>
+        .stats-page {
+            padding-top: 80px;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+        }
+
+        .stats-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-header {
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stats-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .payment-info {
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .payment-info h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .payment-details {
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .payment-details p {
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .payment-details ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .payment-details li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .payment-details li i {
+            color: var(--primary-color);
+        }
+
+        .payment-notice {
+            background-color: #FFF5F5;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .payment-notice p {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .payment-notice i {
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-container {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="stats-page">
+        <div class="stats-container">
+            <div class="stats-header">
+                <h1>Estadísticas de tu Perfil</h1>
+                <p>Aquí puedes ver el rendimiento de tu perfil profesional y la información de pagos.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total de Visualizaciones</h3>
+                    <div class="stat-value"><%= user.contact_clicks || 0 %></div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Estado de la Cuenta</h3>
+                    <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.5rem;">
+                        <% if (user.status === 'active') { %>
+                            <span style="color: #10B981;">Activa</span>
+                        <% } else if (user.status === 'pending') { %>
+                            <span style="color: #F59E0B;">Pendiente</span>
+                        <% } else { %>
+                            <span style="color: #EF4444;">Inactiva</span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Próximo Pago</h3>
+                    <div class="stat-value" style="font-size: 1.2rem; margin-top: 0.5rem;">
+                        5 de <%= new Date().toLocaleString('es-ES', { month: 'long' }) %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-info">
+                <h2>Información de Pago</h2>
+                
+                <div class="payment-details">
+                    <h3>Costos y Métodos de Pago</h3>
+                    <p>La suscripción mensual tiene un costo de $10 USD mensuales.</p>
+                    <p>Métodos de pago aceptados:</p>
+                    <ul>
+                        <li><i class='bx bx-credit-card'></i> Transferencia bancaria</li>
+                        <li><i class='bx bx-bank'></i> Banco: Prex (Fortex)</li>
+                        <li><i class='bx bx-id-card'></i> Número de cuenta: 46111728</li>
+                        <li><i class='bx bx-user'></i> Nombre: Samara Mingroni</li>
+                    </ul>
+
+                    <div class="payment-notice">
+                        <p>
+                            <i class='bx bx-error-circle'></i>
+                            Los pagos deberán realizarse previo al día 5 de cada mes, de lo contrario el perfil será dado de baja. 
+                            Para los meses posteriores al registro, deberá enviarse comprobante de pago al correo hola@e-integra.com 
+                            indicando en el asunto: nombre y apellido del/la profesional.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+</body>
+</html>

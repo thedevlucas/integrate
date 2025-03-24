@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('admin/css/admin.css') %>">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <%- include('partials/topbar') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Bienvenido al panel de administración</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bx-user'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Usuarios</h3>
+                            <p class="stat-value" id="totalUsers">Cargando...</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bx-user-check'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Profesionales Verificados</h3>
+                            <p class="stat-value" id="verifiedProfessionals">Cargando...</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bx-time'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Solicitudes Pendientes</h3>
+                            <p class="stat-value" id="pendingRequests">Cargando...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Últimos Usuarios Registrados</h2>
+                            <a href="/control/users" class="view-all">Ver Todos</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Email</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentUsersTable">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center;">Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function fetchDashboardStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                // Update statistics
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                document.getElementById('verifiedProfessionals').textContent = data.verifiedProfessionals;
+                document.getElementById('pendingRequests').textContent = data.pendingRequests;
+
+                // Update recent users table
+                const recentUsersTable = document.getElementById('recentUsersTable');
+                recentUsersTable.innerHTML = data.recentUsers.map(user => `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <img src="${user.avatar ? '/uploads/' + user.avatar : '<%= getFile("global/assets/images/avatar.png") %>'}" alt="${user.fullname}">
+                                <span>${user.fullname}</span>
+                            </div>
+                        </td>
+                        <td>${user.email}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <span class="status ${user.status === 'active' ? 'active' : user.status === 'pending' ? 'pending' : 'inactive'}">
+                                ${user.status === 'active' ? 'Activo' : user.status === 'pending' ? 'Pendiente' : 'Inactivo'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            }
+        }
+
+        // Fetch initial data
+        fetchDashboardStats();
+
+        // Refresh data every 5 minutes
+        setInterval(fetchDashboardStats, 300000);
+    </script>
+
+    <script src="<%= getFile('admin/js/admin.js') %>"></script>
+</body>
+</html>

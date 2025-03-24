@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrate - Encuentra Profesionales</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <style>
+        .professionals-slider {
+            position: relative;
+            overflow: hidden;
+            padding: 1rem 0;
+        }
+
+        .professionals-container {
+            display: flex;
+            gap: 1.5rem;
+            transition: transform 0.3s ease;
+            padding: 0 1rem;
+        }
+
+        .professional-card {
+            min-width: 280px;
+            flex: 0 0 auto;
+        }
+    </style>
+    <script src="<%= getFile('global/js/main.js') %>"></script>
+    <script src="<%= getFile('global/js/menu.js') %>"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <a href="/">
+                    <img src="<%= getFile('global/assets/images/logo.png') %>" alt="Integrate Logo" class="logo-light">
+                    <img src="<%= getFile('global/assets/images/logo_black.png') %>" alt="Integrate Logo" class="logo-dark">
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul class="nav-links">
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="/search">Buscar Profesionales</a></li>
+                    <% if (!user){ %>
+                        <li><a href="/professionals">Soy profesional</a></li>
+                    <% } else { %>
+                        <li><a href="/stats">Estadísticas</a></li>
+                    <% } %>
+                    <li><a href="/contact">Contacto</a></li>
+                    <a href="/login" class="login-btn">INICIAR SESIÓN</a>
+                </ul>
+            </nav>
+            <% if (!user) { %>
+                <a href="/login" class="login-btn">INICIAR SESIÓN</a>
+            <% } else { %>
+                <div class="user-menu">
+                    <div class="user-menu-trigger">
+                        <img src="<%= user.avatar ? '/uploads/' + user.avatar : getFile('global/assets/images/avatar.png') %>" alt="Avatar" class="user-avatar">
+                        <span class="user-name"><%= user.fullname %></span>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                    <div class="user-menu-dropdown">
+                        <a href="/profile/<%= user.id %>" class="menu-item">
+                            <i class='bx bx-user'></i>
+                            <span>Mi Perfil</span>
+                        </a>
+                        <% if (user.group == "admin") { %>
+                            <a href="/control" class="menu-item">
+                                <i class='bx bx-user'></i>
+                                <span>Administración</span>
+                            </a>
+                        <% } %>
+                        <a href="/settings/account" class="menu-item">
+                            <i class='bx bx-cog'></i>
+                            <span>Ajustes</span>
+                        </a>
+                        <a href="/logout" class="menu-item">
+                            <i class='bx bx-log-out'></i>
+                            <span>Cerrar Sesión</span>
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+            <button class="mobile-menu-btn">
+                <i class='bx bx-menu'></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>¿BUSCAS UN PROFESIONAL?</h1>
+                <p>Accedé a psicólogos, nutricionistas, psicopedagogos, fonoaudiólogos, fisioterapeutas, psicomotricistas, psiquiatras y médicos en Ciudad de la Costa y Canelones.</p>
+                <a href="/search" class="cta-button">BUSCAR YA</a>
+            </div>
+            <div class="hero-overlay"></div>
+            <img src="<%= getFile('global/assets/images/hero.png') %>" alt="Professional">
+        </section>
+
+        <section class="professionals">
+            <div class="section-container">
+                <h2>Estos son algunos de nuestros profesionales</h2>
+                <!-- <p class="section-subtitle">ESTOS SON LOS PROFESIONALES QUE NOSOTROS RECOMENDAMOS</p> -->
+                
+                <div class="professionals-slider">
+                    <button class="slider-arrow prev"><i class='bx bx-chevron-left'></i></button>
+                    <div class="professionals-container">
+                        <% recommendedProfessionals.forEach(professional => { %>
+                            <a href="/profile/<%= professional.id %>" class="professional-link">
+                                <div class="professional-card">
+                                    <div class="professional-image">
+                                        <img src="<%= professional.avatar ? '/uploads/' + professional.avatar : getFile('global/assets/images/avatar.png') %>" alt="<%= professional.fullname %>">
+                                    </div>
+                                    <div class="professional-info">
+                                        <h3><%= professional.fullname %></h3>
+                                        <p class="profession"><%= professional.category_name || 'Profesional' %></p>
+                                        <p class="location"><%= professional.location_name || 'Ubicación no especificada' %></p>
+                                        <p class="specialties">
+                                            <% if (professional.patients_type) { 
+                                                const types = JSON.parse(professional.patients_type);
+                                                const activeTypes = Object.entries(types)
+                                                    .filter(([_, value]) => value)
+                                                    .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
+                                            %>
+                                                <%= activeTypes.join(', ') %>
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        <% }); %>
+                    </div>
+                    <button class="slider-arrow next"><i class='bx bx-chevron-right'></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="about">
+            <div class="section-container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>SOBRE NOSOTROS</h2>
+                        <p>Integrate es la primera red de profesionales verificados de Ciudad de la Costa y Canelones. Podrás acceder a profesionales certificados, con variedad de especialidades y amplio alcance, para que puedas acceder al profesional más cercano y acorde a tus expectativas. Todos nuestros profesionales serán validados por nuestro equipo previo a su ingreso, de esta manera nos aseguramos proporcionarte un servicio seguro y profesional. 
+                            Acá podrás encontrar psicólogos, nutricionistas, psicopedagogos, fonoaudiólogos, fisioterapeutas, psicomotricistas, psiquiatras y médicos, ubicados en distintas zonas del departamento y con un amplio espectro de honorarios. </p>
+                        <p>Encontrá al profesional que buscas y contáctate directamente con él.</p>
+                    </div>
+                    <div class="about-image">
+                        <img src="<%= getFile('global/assets/images/us.png') %>" alt="About Us">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('footer') %>
+</body>
+</html>

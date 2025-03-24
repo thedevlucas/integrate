@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios - Panel de Administración</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('admin/css/admin.css') %>">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <%- include('partials/topbar') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1>Usuarios</h1>
+                    <a href="/control/users/register" class="primary-button">
+                        <i class='bx bx-plus'></i>
+                        Nuevo Usuario
+                    </a>
+                </div>
+
+                <div class="filters-bar">
+                    <div class="filters-left">
+                        <div class="search-box">
+                            <i class='bx bx-search'></i>
+                            <input type="text" id="searchInput" placeholder="Buscar por nombre o email..." onkeyup="handleSearch()">
+                        </div>
+                    </div>
+
+                    <div class="filters-right">
+                        <div class="filter-group">
+                            <div class="filter-select">
+                                <select id="statusFilter" onchange="handleFilters()">
+                                    <option value="">Todos los estados</option>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                                <i class='bx bx-chevron-down'></i>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <div class="filter-select">
+                                <select id="sortFilter" onchange="handleFilters()">
+                                    <option value="name">Ordenar por nombre</option>
+                                    <option value="date_desc">Fecha (más reciente)</option>
+                                    <option value="date_asc">Fecha (más antigua)</option>
+                                </select>
+                                <i class='bx bx-chevron-down'></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Estado</th>
+                                <th>Fecha de Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="<%= user.avatar ? '/uploads/' + user.avatar : getFile('global/assets/images/avatar.png') %>" alt="<%= user.fullname %>">
+
+                                            <span><%= user.fullname %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= user.email %></td>
+                                    <td>
+                                        <span class="status <%= user.status === 'active' ? 'active' : 'inactive' %>">
+                                            <%= user.status === 'active' ? 'Activo' : 'Inactivo' %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                                    <td>
+                                        <div class="actions">
+                                            <a href="/control/users/edit/<%= user.id %>" class="action-btn edit">
+                                                <i class='bx bx-edit'></i>
+                                            </a>
+                                            <button class="action-btn delete" onclick="confirmDelete('<%= user.id %>')">
+                                                <i class='bx bx-trash'></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentFilters = {
+            search: '',
+            status: '',
+            sort: 'name'
+        };
+
+        async function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            currentFilters.search = searchInput.value;
+            await fetchUsers();
+        }
+
+        async function handleFilters() {
+            const statusFilter = document.getElementById('statusFilter');
+            const sortFilter = document.getElementById('sortFilter');
+
+            currentFilters.status = statusFilter.value;
+            currentFilters.sort = sortFilter.value;
+
+            await fetchUsers();
+        }
+
+        async function fetchUsers() {
+            try {
+                const queryParams = new URLSearchParams(currentFilters);
+                const response = await fetch(`/api/users/filter?${queryParams}`);
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = data.users.map(user => `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <img src="${user.avatar ? '/uploads/' + user.avatar : '<%= getFile("global/assets/images/avatar.png") %>'}" alt="${user.fullname}">
+                                <span>${user.fullname}</span>
+                            </div>
+                        </td>
+                        <td>${user.email}</td>
+                        <td>
+                            <span class="status ${user.status === 'active' ? 'active' : 'inactive'}">
+                                ${user.status === 'active' ? 'Activo' : 'Inactivo'}
+                            </span>
+                        </td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="/control/users/edit/${user.id}" class="action-btn edit">
+                                    <i class='bx bx-edit'></i>
+                                </a>
+                                <button class="action-btn delete" onclick="confirmDelete('${user.id}')">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error filtering users:', error);
+            }
+        }
+
+        async function confirmDelete(userId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+                    
+                    await fetchUsers();
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Error al eliminar el usuario');
+                }
+            }
+        }
+    </script>
+
+    <script src="<%= getFile('admin/js/admin.js') %>"></script>
+</body>
+</html>

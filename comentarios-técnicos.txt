@@ -1,0 +1,10 @@
+Cualquier ajuste manual sobre la Base de datos, Configuración de E-mail, PuertoWeb, Auth the Cookies. Puede realizarse en el archivo config.json
+
+La página web fué realizada con los siguientes especificaciones:
+
+Node.JS (Servidor)
+Express.JS (Servidor WEB)
+MySQL (Base de datos)
+Nodemailer (Gestor de Email)
+
+

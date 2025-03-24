@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustes de Cuenta - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/settings.css') %>">
+    <style>
+        .header {
+            background-color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+    </style>
+</head>
+<body>
+    <%- include('../header') %>
+
+    <main class="settings-page">
+        <div class="settings-container">
+            <aside class="settings-sidebar">
+                <nav class="settings-nav">
+                    <a href="/settings/account" class="nav-item active">Ajustes De Cuenta</a>
+                    <a href="/settings/professional" class="nav-item">Ajustes Del Perfil Profesional</a>
+                </nav>
+            </aside>
+
+            <section class="settings-content">
+                <h1>AJUSTES DEL USUARIO</h1>
+
+                <form id="accountForm" onsubmit="handleSubmit(event)">
+                    <div class="settings-section">
+                        <h2>CORREO ELECTRÓNICO</h2>
+                        <div class="input-group">
+                            <input type="text" value="<%= user.email %>" disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h2>NOMBRE APELLIDO</h2>
+                        <div class="input-group">
+                            <input type="text" name="fullname" value="<%= user.fullname %>" required>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>CAMBIAR CONTRASEÑA</h2>
+                        <div class="input-group">
+                            <input type="password" name="current_password" placeholder="INGRESA TU CONTRASEÑA ACTUAL">
+                        </div>
+                        <div class="input-group">
+                            <input type="password" name="new_password" placeholder="INGRESA TU NUEVA CONTRASEÑA">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>ESTADO DE CUENTA</h2>
+                        <p class="account-status"><%= user.status === 'active' ? 'Actualmente tu cuenta se encuentra ACTIVA' : 'Actualmente tu cuenta se encuentra INACTIVA' %></p>
+                    </div>
+
+                    <div class="settings-section">
+                        <h2>FOTO DE PERFIL</h2>
+                        <div class="profile-photo">
+                            <img src="<%= user.avatar ? '/uploads/' + user.avatar : getFile('global/assets/images/avatar.png') %>" alt="Profile Photo" id="avatarPreview">
+                            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display: none;" onchange="handleImagePreview(event)">
+                            <button type="button" class="change-photo-btn" onclick="document.getElementById('avatarInput').click()">
+                                Cambiar Foto De Perfil
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-button">
+                            <i class='bx bx-save'></i>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <%- include('../footer') %>
+
+    <script>
+        function handleImagePreview(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData(form);
+                
+                // Only include password fields if a new password is being set
+                if (!formData.get('new_password')) {
+                    formData.delete('current_password');
+                    formData.delete('new_password');
+                }
+
+                const response = await fetch('/api/settings/account', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Error al actualizar la configuración');
+                }
+
+                alert('Configuración actualizada correctamente');
+                location.reload();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

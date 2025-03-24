@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Profesionales - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/search.css') %>">
+    <style>
+        .header {
+            background-color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="professionals-page">
+        <div class="professionals-container">
+            <aside class="filters-sidebar">
+                <h2 class="list-title">BUSCAR PROFESIONALES</h2>
+                
+                <div class="search-bar">
+                    <i class='bx bx-search'></i>
+                    <input type="text" id="searchInput" placeholder="Buscar Por Nombre, Especialidad, Etc." onkeyup="handleSearch()">
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <h3>Tipo De Profesionales</h3>
+                        <button class="clear-btn" onclick="clearFilters()">Limpiar Todo</button>
+                    </div>
+                    <div class="filter-options" id="professionalTypes">
+                        <% categories.forEach(category => { %>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="category" value="<%= category.id %>" data-category="<%= category.name %>" onchange="handleCategoryChange(this)">
+                                <span class="checkbox-custom"></span>
+                                <%= category.name %>
+                            </label>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Ubicación</h3>
+                    <div class="location-select">
+                        <select id="locationFilter" onchange="handleFilters()">
+                            <option value="">Todas las ubicaciones</option>
+                            <% locations.forEach(location => { %>
+                                <option value="<%= location.id %>"><%= location.name %></option>
+                            <% }); %>
+                        </select>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Género</h3>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gender" value="0" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Masculino
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="gender" value="1" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Femenino
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3>Dirigido A</h3>
+                    <div class="filter-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="patientType" value="niños" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Niños
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="patientType" value="adolescentes" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Adolescentes
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="patientType" value="adultos" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Adultos
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="patientType" value="parejas" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Parejas
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="patientType" value="familias" onchange="handleFilters()">
+                            <span class="checkbox-custom"></span>
+                            Familias
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-group hidden" id="orientationsGroup">
+                    <h3>Orientaciones</h3>
+                    <div class="filter-options" id="orientationsContainer">
+                        <% orientations.forEach(orientation => { %>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="orientation" value="<%= orientation.id %>" onchange="handleOrientationChange(this)">
+                                <span class="checkbox-custom"></span>
+                                <%= orientation.name %>
+                            </label>
+                        <% }); %>
+                    </div>
+                </div>
+
+
+                <div id="dynamicFilters">
+                    <!-- Dynamic filter categories will be loaded here -->
+                </div>
+            </aside>
+
+            <section class="professionals-list">
+                <div class="professionals-cards" id="professionalsContainer">
+                    <% professionals.forEach(professional => { %>
+                        <div class="professional-card">
+                            <div class="card-header">
+                                <img src="<%= professional.avatar ? '/uploads/' + professional.avatar : getFile('global/assets/images/avatar.png') %>" alt="<%= professional.fullname %>">
+                            </div>
+                            <div class="card-content">
+                                <h3><%= professional.fullname %></h3>
+                                <p class="profession"><%= professional.category_name ? professional.category_name : 'Sin categoría' %></p>
+                                <div class="specialties">
+                                    <% if (professional.online) { %>
+                                        <span class="tag online">Online</span>
+                                    <% } %>
+                            
+                                    <% if (professional.presential) { %>
+                                        <span class="tag presential">Presencial</span>
+                                    <% } %>
+                                </div>
+                                <% if (professional.orientation_name) { %>
+                                    <p class="orientation">Especialista en <%= professional.orientation_name %></p>
+                                <% } %>
+                                <p class="description"><%= professional.short_description ? professional.short_description : 'Sin descripción disponible' %></p>
+                                <p class="location"><%= professional.location_name ? professional.location_name : 'Ubicación no especificada' %></p>
+                                <p class="patients">
+                                    <% if (professional.patients_type){ %>
+                                        <%= professional.patients_type["niños"] ? "Niños, " : "" %>
+                                        <%= professional.patients_type["adolescentes"] ? "Adolescentes, " : "" %>
+                                        <%= professional.patients_type["adultos"] ? "Adultos, " : "" %>
+                                        <%= professional.patients_type["parejas"] ? "Parejas, " : "" %>
+                                        <%= professional.patients_type["familias"] ? "Familias" : "" %>
+                                    <% } %>
+                                </p>
+                                <a href="/profile/<%= professional.id %>" class="view-profile">Ver Perfil</a>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+
+                <div class="pagination" id="pagination">
+                    <% if (totalPages > 1) { %>
+                        <button class="page-btn prev" onclick="changePage(<%= currentPage - 1 %>)" <%= currentPage === 1 ? 'disabled' : '' %>>
+                            <i class='bx bx-chevron-left'></i>
+                        </button>
+                        
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <button class="page-btn <%= currentPage === i ? 'active' : '' %>" onclick="changePage(<%= i %>)">
+                                <%= i %>
+                            </button>
+                        <% } %>
+                        
+                        <button class="page-btn next" onclick="changePage(<%= currentPage + 1 %>)" <%= currentPage === totalPages ? 'disabled' : '' %>>
+                            <i class='bx bx-chevron-right'></i>
+                        </button>
+                    <% } %>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+
+    <script>
+        let currentFilters = {
+            search: '',
+            categories: [],
+            orientations: [],
+            gender: [],
+            patientTypes: [],
+            location: '',
+            dynamicFilters: {},
+            page: 1
+        };
+
+        // Load dynamic filters when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDynamicFilters();
+        });
+
+        async function loadDynamicFilters() {
+            try {
+                const response = await fetch('/api/admin/filter-categories');
+                const categories = await response.json();
+                
+                const dynamicFiltersContainer = document.getElementById('dynamicFilters');
+                
+                for (const category of categories) {
+                    const filterGroup = document.createElement('div');
+                    filterGroup.className = 'filter-group';
+                    
+                    // Get options for this category
+                    const optionsResponse = await fetch(`/api/admin/filter-categories/${category.id}/options`);
+                    const options = await optionsResponse.json();
+                    
+                    filterGroup.innerHTML = `
+                        <h3>${category.name}</h3>
+                        <div class="filter-options">
+                            ${options.map(option => `
+                                <label class="checkbox-label">
+                                    <input type="checkbox" 
+                                        name="dynamic_filter_${category.id}" 
+                                        value="${option.id}"
+                                        data-category-id="${category.id}"
+                                        onchange="handleDynamicFilters(this)">
+                                    <span class="checkbox-custom"></span>
+                                    ${option.name}
+                                </label>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    dynamicFiltersContainer.appendChild(filterGroup);
+                }
+            } catch (error) {
+                console.error('Error loading dynamic filters:', error);
+            }
+        }
+
+        function handleDynamicFilters(checkbox) {
+            const categoryId = checkbox.dataset.categoryId;
+            const optionId = checkbox.value;
+            
+            if (!currentFilters.dynamicFilters[categoryId]) {
+                currentFilters.dynamicFilters[categoryId] = [];
+            }
+            
+            if (checkbox.checked) {
+                currentFilters.dynamicFilters[categoryId].push(optionId);
+            } else {
+                currentFilters.dynamicFilters[categoryId] = currentFilters.dynamicFilters[categoryId]
+                    .filter(id => id !== optionId);
+                
+                if (currentFilters.dynamicFilters[categoryId].length === 0) {
+                    delete currentFilters.dynamicFilters[categoryId];
+                }
+            }
+            
+            handleFilters();
+        }
+
+        function handleOrientationChange(checkbox) {
+            const orientationId = checkbox.value;
+
+            if (checkbox.checked) {
+                currentFilters.orientations.push(orientationId);
+            } else {
+                currentFilters.orientations = currentFilters.orientations.filter(id => id !== orientationId);
+            }
+
+            handleFilters(); // Llama a la función para aplicar los filtros actualizados
+        }
+
+
+        function handleCategoryChange(checkbox) {
+            const categoryId = checkbox.value;
+            const orientationsGroup = document.getElementById('orientationsGroup');
+            
+            if (checkbox.checked) {
+                currentFilters.categories.push(categoryId);
+                // Show orientations if psychologist is selected
+                if (checkbox.dataset.category === 'Psicólogo') {
+                    orientationsGroup?.classList.remove('hidden');
+                }
+            } else {
+                currentFilters.categories = currentFilters.categories.filter(id => id !== categoryId);
+                // Hide orientations if psychologist is unselected
+                if (checkbox.dataset.category === 'Psicólogo') {
+                    orientationsGroup?.classList.add('hidden');
+                    // Clear orientation selections
+                    document.querySelectorAll('input[name="orientation"]').forEach(cb => {
+                        cb.checked = false;
+                    });
+                    currentFilters.orientations = [];
+                    console.log(currentFilters);
+                }
+            }
+            
+            handleFilters();
+        }
+
+        async function handleSearch() {
+            const searchInput = document.getElementById('searchInput');
+            currentFilters.search = searchInput.value;
+            currentFilters.page = 1;
+            await fetchProfessionals();
+        }
+
+        async function handleFilters() {
+            // Get selected categories
+            const categoryCheckboxes = document.querySelectorAll('input[name="category"]:checked');
+            currentFilters.categories = Array.from(categoryCheckboxes).map(cb => cb.value);
+
+            // Get selected orientations
+            const orientationCheckboxes = document.querySelectorAll('input[name="orientation"]:checked');
+            currentFilters.orientations = Array.from(orientationCheckboxes).map(cb => cb.value);
+
+            // Get selected genders
+            const genderCheckboxes = document.querySelectorAll('input[name="gender"]:checked');
+            currentFilters.gender = Array.from(genderCheckboxes).map(cb => cb.value);
+
+            // Get selected patient types
+            const patientTypeCheckboxes = document.querySelectorAll('input[name="patientType"]:checked');
+            currentFilters.patientTypes = Array.from(patientTypeCheckboxes).map(cb => cb.value);
+
+            // Get location
+            const locationSelect = document.getElementById('locationFilter');
+            currentFilters.location = locationSelect.value;
+
+            currentFilters.page = 1;
+            await fetchProfessionals();
+        }
+
+        function clearFilters() {
+            // Clear all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('locationFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            // Hide orientations section
+            const orientationsGroup = document.getElementById('orientationsGroup');
+            orientationsGroup?.classList.add('hidden');
+            
+            currentFilters = {
+                search: '',
+                categories: [],
+                orientations: [],
+                gender: [],
+                patientTypes: [],
+                location: '',
+                dynamicFilters: {},
+                page: 1
+            };
+
+            fetchProfessionals();
+        }
+
+        async function changePage(page) {
+            if (page < 1 || page > <%= totalPages %>) return;
+            currentFilters.page = page;
+            await fetchProfessionals();
+        }
+
+        async function fetchProfessionals() {
+            try {
+                const queryParams = new URLSearchParams({
+                    search: currentFilters.search,
+                    categories: currentFilters.categories.join(','),
+                    orientations: currentFilters.orientations.join(','),
+                    gender: currentFilters.gender.join(','),
+                    patientTypes: currentFilters.patientTypes.join(','),
+                    location: currentFilters.location,
+                    dynamicFilters: JSON.stringify(currentFilters.dynamicFilters),
+                    page: currentFilters.page
+                });
+
+                const response = await fetch('/api/search?' + queryParams);
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error);
+
+                const container = document.getElementById('professionalsContainer');
+                const pagination = document.getElementById('pagination');
+
+                container.innerHTML = data.professionals.map(prof => `
+                    <div class="professional-card">
+                        <div class="card-header">
+                            <img src="${prof.avatar ? `/uploads/${prof.avatar}` : '<%= getFile("global/assets/images/avatar.png") %>'}" 
+                                alt="${prof.fullname}">
+                        </div>
+                        <div class="card-content">
+                            <h3>${prof.fullname}</h3>
+                            <p class="profession">${prof.category_name || 'Sin categoría'}</p>
+                            <div class="specialties">
+                                ${prof.online ? '<span class="tag online">Online</span>' : ''}
+                                ${prof.presential ? '<span class="tag presential">Presencial</span>' : ''}
+                            </div>
+                            ${prof.orientation_name ? `<p class="orientation">Especialista en ${prof.orientation_name}</p>` : ''}
+                            <p class="description">${prof.short_description || 'Sin descripción disponible'}</p>
+                            <p class="location">${prof.location_name || 'Ubicación no especificada'}</p>
+                            <p class="patients">
+                                ${prof.patients_type ? 
+                                    Object.entries(prof.patients_type)
+                                        .filter(([key, value]) => value)
+                                        .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1))
+                                        .join(', ')
+                                    : ''}
+                            </p>
+                            <a href="/profile/${prof.id}" class="view-profile">Ver Perfil</a>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update pagination
+                if (data.totalPages > 1) {
+                    let paginationHTML = '';
+                    if (data.currentPage > 1) {
+                        paginationHTML += `
+                            <button class="page-btn prev" onclick="changePage(${data.currentPage - 1})">
+                                <i class='bx bx-chevron-left'></i>
+                            </button>
+                        `;
+                    }
+
+                    for (let i = 1; i <= data.totalPages; i++) {
+                        paginationHTML += `
+                            <button class="page-btn ${data.currentPage === i ? 'active' : ''}" 
+                                    onclick="changePage(${i})">
+                                ${i}
+                            </button>
+                        `;
+                    }
+
+                    if (data.currentPage < data.totalPages) {
+                        paginationHTML += `
+                            <button class="page-btn next" onclick="changePage(${data.currentPage + 1})">
+                                <i class='bx bx-chevron-right'></i>
+                            </button>
+                        `;
+                    }
+
+                    pagination.innerHTML = paginationHTML;
+                } else {
+                    pagination.innerHTML = '';
+                }
+
+            } catch (error) {
+                console.error('Error fetching professionals:', error);
+            }
+        }
+    </script>
+</body>
+</html>

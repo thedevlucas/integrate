@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Usuario - Panel de Administración</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('admin/css/admin.css') %>">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <%- include('partials/topbar') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1>Registrar Nuevo Usuario</h1>
+                    <button class="secondary-button" onclick="history.back()">
+                        <i class='bx bx-arrow-back'></i>
+                        Volver
+                    </button>
+                </div>
+
+                <div class="register-form-container">
+                    <form id="registerUserForm" class="admin-form" onsubmit="handleSubmit(event)">
+                        <div class="form-section">
+                            <h2>Información del Usuario</h2>
+
+                            <div class="form-group">
+                                <label for="fullname">Nombre Completo</label>
+                                <input type="text" id="fullname" name="fullname" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Correo Electrónico</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">Contraseña</label>
+                                <div class="password-input">
+                                    <input type="password" id="password" name="password" required>
+                                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_password">Confirmar Contraseña</label>
+                                <div class="password-input">
+                                    <input type="password" id="confirm_password" name="confirm_password" required>
+                                    <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role">Rol</label>
+                                <select id="role" name="role" required>
+                                    <option value="">Tipo de cuenta</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="professional">Profesional</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="status">Estado Inicial</label>
+                                <select id="status" name="status" required>
+                                    <option value="active">Activo</option>
+                                    <option value="pending">Pendiente</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="errorMessage" class="error-message" style="display: none; color: #EF4444; margin-bottom: 1rem; text-align: center;"></div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="primary-button" id="submitBtn">
+                                <i class='bx bx-user-plus'></i>
+                                Crear Usuario
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bx-show');
+                icon.classList.add('bx-hide');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bx-hide');
+                icon.classList.add('bx-show');
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('#submitBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Reset error message
+            errorDiv.style.display = 'none';
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Procesando...';
+
+            try {
+                // Validate passwords match
+                const password = form.password.value;
+                const confirmPassword = form.confirm_password.value;
+
+                if (password !== confirmPassword) {
+                    throw new Error('Las contraseñas no coinciden');
+                }
+
+                // Prepare form data
+                const formData = {
+                    fullname: form.fullname.value,
+                    email: form.email.value,
+                    password: password,
+                    role: form.role.value,
+                    status: form.status.value
+                };
+
+                // Send request
+                const response = await fetch('/api/admin/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al registrar el usuario');
+                }
+
+                // Show success message and redirect
+                alert('Usuario registrado correctamente');
+                window.location.href = '/control/users';
+
+            } catch (error) {
+                // Show error message
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+    </script>
+
+    <script src="<%= getFile('admin/js/admin.js') %>"></script>
+</body>
+</html>

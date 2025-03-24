@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Únete Como Profesional - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <style>
+        .preview-page {
+            padding-top: 80px;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+        }
+
+        .preview-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .preview-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .preview-header p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .benefit-card {
+            background-color: #1a163d;
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+            color: white;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: #f8c054;
+            margin-bottom: 1rem;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: white;
+        }
+
+        .benefit-card p {
+            font-size: 0.9rem;
+            color: rgb(192, 192, 192);
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            text-align: center;
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cta-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .cta-section p {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all var(--transition-normal);
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .notice {
+            background-color: #FFF5F5;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 992px) {
+            .benefits-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .preview-header h1 {
+                font-size: 2rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .cta-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .cta-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="preview-page">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h1>Únite a nuestra red de profesionales</h1>
+                <p>Conecta con pacientes, mejora tu alcance como profesional y haz crecer tu práctica profesional con nosotros</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <i class='bx bx-user-plus benefit-icon'></i>
+                    <h3>Mayor visibilidad</h3>
+                    <p>Aumenta tu visibilidad profesional, llegando a más personas en todo el departamento</p>
+                </div>
+
+                <div class="benefit-card">
+                    <i class='bx bx-calendar-check benefit-icon'></i>
+                    <h3>Gestión Eficiente</h3>
+                    <p>Administra tu perfil de forma fácil y rápida, realizando los cambios y ajuste que quieras, cuando quieras.</p>
+                </div>
+
+                <div class="benefit-card">
+                    <i class='bx bx-badge-check benefit-icon'></i>
+                    <h3>Comunidad profesional</h3>
+                    <p>Sumate a una Red de Profesionales verificados, proporcionándole seguridad a todas las personas. </p>
+                </div>
+            </div>
+            <div class="notice">
+                <p><i class='bx bx-info-circle'></i> Para sumarte a nuestra red, requerirás una inversión de 10usd mensuales, sin importar la cantidad de contactos que recibas mensualmente. Se trata de un pago único mensual.</p>
+            </div>
+            <div class="cta-section">
+                <h2>¿LISTO PARA COMENZAR?</h2>
+                <p>Unite a la primera Red de Profesionales de Ciudad de la Costa y Canelones. </p>
+                <a href="/professionals/send" class="cta-button">
+                    <i class='bx bx-user-plus'></i>
+                    REGISTRARME COMO PROFESIONAL
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+</body>
+</html>

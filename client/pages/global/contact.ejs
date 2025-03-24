@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrate - Contactate con nosotros</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <style>
+        .contact-page {
+            padding-top: 80px;
+            min-height: 100vh;
+            background-color: var(--light-gray);
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .contact-header h1 {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .contact-header p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .contact-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            text-align: center;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .contact-icon i {
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        .contact-card h3 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .contact-card p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .contact-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            transition: all var(--transition-normal);
+        }
+
+        .contact-link:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .contact-info {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .contact-info h2 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .contact-info p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .business-hours {
+            display: inline-block;
+            text-align: left;
+            margin: 0 auto;
+        }
+
+        .business-hours li {
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+        }
+
+        .business-hours strong {
+            color: var(--text-color);
+            margin-right: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-header h1 {
+                font-size: 2rem;
+            }
+
+            .contact-container {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="contact-page">
+        <div class="contact-container">
+            <div class="contact-header">
+                <h1>Contáctanos</h1>
+                <p>Estamos aquí para ayudarte. Contáctanos por WhatsApp o correo electrónico y te responderemos lo antes posible.</p>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class='bx bxl-whatsapp'></i>
+                    </div>
+                    <h3>WhatsApp</h3>
+                    <p>Nuestro horario de atención y respuesta, es de lunes a viernes de 8 a 18hs.</p>
+                    <a href="http://wa.me/+59892125551" target="_blank" class="contact-link">
+                        <i class='bx bxl-whatsapp'></i>
+                        Enviar mensaje
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class='bx bx-envelope'></i>
+                    </div>
+                    <h3>Correo Electrónico</h3>
+                    <p>También podrás comunicarte con nosotros mediante nuestro correo electrónico.<br><small>hola@e-integra.com</small></p>
+                    
+                    <a href="mailto:hola@e-integra.com" class="contact-link">
+                        <i class='bx bx-envelope'></i>
+                        Enviar email
+                    </a>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class='bx bxl-instagram'></i>
+                    </div>
+                    <h3>Instagram</h3>
+                    <p>Podes enviarnos un mensaje por nuestro instagram</p>
+                    <a href="https://instagram.com/_integra.te" target="_blank" class="contact-link">
+                        <i class='bx bxl-instagram'></i>
+                        Enviar mensaje
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+</body>
+</html>

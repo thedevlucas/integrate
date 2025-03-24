@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Profesional - Integrate</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/auth.css') %>">
+    <style>
+        .registration-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+            color: var(--text-light);
+        }
+
+        .step.active {
+            color: var(--primary-color);
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .step.active .step-number {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .registration-screen {
+            display: none;
+        }
+
+        .registration-screen.active {
+            display: block;
+        }
+
+        .info-section {
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-section h3 {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-section p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-section li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .info-section li i {
+            color: var(--primary-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1rem;
+            border: 2px dashed var(--medium-gray);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+
+        .file-input-label:hover {
+            border-color: var(--primary-color);
+        }
+
+        .file-input-label i {
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .accepted-formats {
+            display: block;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .notice {
+            background-color: #FFF5F5;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .secondary-button {
+            height: 55px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="signup-page">
+        <div class="signup-container">
+            <div class="signup-card">
+                <div class="registration-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-number">1</div>
+                        <span>Registro</span>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <span>Documentación</span>
+                    </div>
+                </div>
+
+                <!-- Screen 1: Initial Registration -->
+                <div class="registration-screen active" id="screen1">
+                    <h1>REGISTRO PROFESIONAL</h1>
+                    <p class="subtitle">Completa el siguiente formulario para dar inicio a tu registro</p>
+
+                    <form class="signup-form" id="registrationForm" onsubmit="handleInitialRegistration(event)">
+                        <div class="form-group">
+                            <label for="email">CORREO ELECTRÓNICO</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-envelope'></i>
+                                <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullname">NOMBRE COMPLETO</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-user'></i>
+                                <input type="text" id="fullname" name="fullname" placeholder="Ingresa tu nombre completo" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">CONTRASEÑA</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-lock-alt'></i>
+                                <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">CONFIRMAR CONTRASEÑA</label>
+                            <div class="input-wrapper">
+                                <i class='bx bx-lock-alt'></i>
+                                <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirma tu contraseña" required>
+                                <button type="button" class="toggle-password" onclick="togglePassword('confirm-password')">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="errorMessage" class="error-message" style="color: #EF4444; margin-bottom: 1rem; text-align: center; display: none;"></div>
+
+                        <button type="submit" class="signup-btn" id="submitBtn">INICIAR REGISTRO</button>
+                    </form>
+                </div>
+
+                <!-- Screen 2: Documentation -->
+                <div class="registration-screen" id="screen2">
+                    <h1>DOCUMENTACIÓN REQUERIDA</h1>
+                    <p class="subtitle">Complete la información necesaria para finalizar su registro</p>
+
+                    <div class="info-section">
+                        <h3>¿Cómo funciona nuestra plataforma?</h3>
+                        <ul>
+                            <li><i class='bx bx-check-circle'></i> Conectamos profesionales calificados con personas que buscan sus servicios</li>
+                            <li><i class='bx bx-check-circle'></i> Visibilidad y autonomía para tu práctica profesional</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-section">
+                        <h3>Costos y Métodos de Pago</h3>
+                        <p>La suscripción mensual tiene un costo de $10 USD mensuales.</p>
+                        <p>Métodos de pago aceptados:</p>
+                        <ul>
+                            <li><i class='bx bx-credit-card'></i> Transferencia bancaria</li>
+                            <li>Banco: Prex (Fortex)</li>
+                            <li>Número de cuenta: 46111728</li>
+                            <li>Nombre: Samara Mingroni</li>
+                        </ul>
+                        <p><i class='bx bx-error-circle'></i> Los pagos deberán realizarse previo al día 5 de cada mes, de lo contrario el perfil será dado de baja. Para los meses posteriores al registro, deberá enviarse comprobante de pago al correo hola@e-integra.com indicando en el asunto: nombre y apellido del/la profesional.</p>
+                    </div>
+
+                    <form class="signup-form" id="documentationForm" onsubmit="handleDocumentationSubmit(event)">
+                        <h3>Para completar su registro, necesitamos:</h3>
+
+                        <div class="form-group">
+                            <label>COMPROBANTE DE PAGO</label>
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="payment_proof">
+                                    <i class='bx bx-upload'></i>
+                                    <span>Subir comprobante de pago</span>
+                                </label>
+                                <input type="file" id="payment_proof" name="payment_proof" class="file-input" accept="image/*,.pdf,.doc,.docx" required onchange="handleFileSelect(this, 'payment_proof_preview')">
+                                <div class="file-name" id="payment_proof_name"></div>
+                                <img id="payment_proof_preview" class="preview-image" alt="Vista previa">
+                                <span class="accepted-formats">Formatos aceptados: Imágenes, PDF, Word (.doc, .docx)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>TÍTULO UNIVERSITARIO</label>
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label" for="degree_proof">
+                                    <i class='bx bx-upload'></i>
+                                    <span>Subir título universitario</span>
+                                </label>
+                                <input type="file" id="degree_proof" name="degree_proof" class="file-input" accept="image/*,.pdf,.doc,.docx" required onchange="handleFileSelect(this, 'degree_proof_preview')">
+                                <div class="file-name" id="degree_proof_name"></div>
+                                <img id="degree_proof_preview" class="preview-image" alt="Vista previa">
+                                <span class="accepted-formats">Formatos aceptados: Imágenes, PDF, Word (.doc, .docx)</span>
+                            </div>
+                        </div>
+
+                        <div class="notice">
+                            <p><i class='bx bx-info-circle'></i> Una vez enviada esta información, en un plazo de 24horas, estaremos aceptando tu registro y activando tu perfil.</p>
+                        </div>
+
+                        <div id="documentationError" class="error-message" style="color: #EF4444; margin-bottom: 1rem; text-align: center; display: none;"></div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="button" class="secondary-button" onclick="showScreen(1)" style="flex: 1;">
+                                <i class='bx bx-arrow-back'></i>
+                                VOLVER
+                            </button>
+                            <button type="submit" class="signup-btn" id="submitDocsBtn" style="flex: 1;">
+                                FINALIZAR REGISTRO
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+
+    <script>
+        function showScreen(screenNumber) {
+            document.querySelectorAll('.registration-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            document.getElementById(`screen${screenNumber}`).classList.add('active');
+            document.getElementById(`step${screenNumber}`).classList.add('active');
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bx-show');
+                icon.classList.add('bx-hide');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bx-hide');
+                icon.classList.add('bx-show');
+            }
+        }
+
+        function handleFileSelect(input, previewId) {
+            const file = input.files[0];
+            const nameElement = document.getElementById(input.id + '_name');
+            const previewElement = document.getElementById(previewId);
+
+            if (file) {
+                nameElement.textContent = file.name;
+                
+                // Only show preview for images
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewElement.src = e.target.result;
+                        previewElement.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // Hide preview for non-image files
+                    previewElement.style.display = 'none';
+                }
+            } else {
+                nameElement.textContent = '';
+                previewElement.style.display = 'none';
+            }
+        }
+
+        async function handleInitialRegistration(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('#submitBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'PROCESANDO...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const email = document.getElementById('email').value;
+                const fullname = document.getElementById('fullname').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                // Validaciones
+                if (password !== confirmPassword) {
+                    throw new Error('Las contraseñas no coinciden');
+                }
+                if (password.length < 6) {
+                    throw new Error('La contraseña debe tener al menos 6 caracteres');
+                }
+
+                // Guardamos los datos en sessionStorage para usarlos después
+                sessionStorage.setItem('email', email);
+                sessionStorage.setItem('fullname', fullname);
+                sessionStorage.setItem('password', password);
+
+                // Pasamos a la siguiente pantalla
+                showScreen(2);
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'INICIAR REGISTRO';
+            }
+        }
+
+        async function handleDocumentationSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('#submitDocsBtn');
+            const errorDiv = document.getElementById('documentationError');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'ENVIANDO...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const formData = new FormData(form);
+
+                // Recuperamos los datos guardados y los añadimos a FormData
+                formData.append('email', sessionStorage.getItem('email'));
+                formData.append('fullname', sessionStorage.getItem('fullname'));
+                formData.append('password', sessionStorage.getItem('password'));
+
+                const response = await fetch('/register-professional', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Error al enviar la documentación');
+                }
+
+                // Limpiar sessionStorage después de completar el registro
+                sessionStorage.removeItem('email');
+                sessionStorage.removeItem('fullname');
+                sessionStorage.removeItem('password');
+
+                // Redirigir a la página de éxito
+                window.location.href = '/registration-success';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'FINALIZAR REGISTRO';
+            }
+        }
+    </script>
+</body>
+</html>

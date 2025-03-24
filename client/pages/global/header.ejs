@@ -1,0 +1,58 @@
+<header class="header scrolled">
+    <div class="header-container">
+        <div class="logo">
+            <a href="/">
+                <img src="<%= getFile('global/assets/images/logo.png') %>" alt="Integrate Logo" class="logo-light">
+                <img src="<%= getFile('global/assets/images/logo_black.png') %>" alt="Integrate Logo" class="logo-dark">
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul class="nav-links">
+                <li><a href="/">Inicio</a></li>
+                    <li><a href="/search">Buscar Profesionales</a></li>
+                    <% if (!user){ %>
+                        <li><a href="/professionals">Soy profesional</a></li>
+                    <% } else { %>
+                        <li><a href="/stats">Estadísticas</a></li>
+                    <% } %>
+                    <li><a href="/contact">Contacto</a></li>
+                    <a href="/login" class="login-btn">INICIAR SESIÓN</a>
+            </ul>
+        </nav>
+        <% if (!user) { %>
+            <a href="/login" class="login-btn">INICIAR SESIÓN</a>
+        <% } else { %>
+            <div class="user-menu">
+                <div class="user-menu-trigger">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : getFile('global/assets/images/avatar.png') %>" alt="Avatar" class="user-avatar">
+                    <span class="user-name"><%= user.fullname %></span>
+                    <i class='bx bx-chevron-down'></i>
+                </div>
+                <div class="user-menu-dropdown">
+                    <a href="/profile/<%= user.id %>" class="menu-item">
+                        <i class='bx bx-user'></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                    <% if (user.group == "admin") { %>
+                        <a href="/control" class="menu-item">
+                            <i class='bx bx-user'></i>
+                            <span>Administración</span>
+                        </a>
+                    <% } %>
+                    <a href="/settings/account" class="menu-item">
+                        <i class='bx bx-cog'></i>
+                        <span>Ajustes</span>
+                    </a>
+                    <a href="/logout" class="menu-item">
+                        <i class='bx bx-log-out'></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+            </div>
+        <% } %>
+        <button class="mobile-menu-btn">
+            <i class='bx bx-menu'></i>
+        </button>
+    </div>
+</header>
+<script src="<%= getFile('global/js/menu.js') %>"></script>

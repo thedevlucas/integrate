@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrate - Encuentra Profesionales</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/auth.css') %>">
+</head>
+<body>
+    <%- include('header') %>
+
+    <main class="signup-page">
+        <div class="signup-container">
+            <div class="signup-card">
+                <h1>INICIAR SESIÓN</h1>
+                <p class="subtitle">Completa el formulario para entrar a tu cuenta</p>
+
+                <form class="signup-form" id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">CORREO ELECTRÓNICO</label>
+                        <div class="input-wrapper">
+                            <i class='bx bx-envelope'></i>
+                            <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">CONTRASEÑA</label>
+                        <div class="input-wrapper">
+                            <i class='bx bx-lock-alt'></i>
+                            <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <i class='bx bx-show'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="error-message" style="color: #EF4444; margin-bottom: 1rem; text-align: center; display: none;"></div>
+
+                    <button type="submit" class="signup-btn" id="submitBtn">INICIAR SESIÓN</button>
+
+                    <p class="login-link">
+                        ¿Eres un profesional y necesitas una cuenta? <a href="/professionals">Registrate</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <%- include('footer') %>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bx-show');
+                icon.classList.add('bx-hide');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bx-hide');
+                icon.classList.add('bx-show');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('#submitBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Disable submit button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'INICIANDO SESIÓN...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Error al iniciar sesión');
+                }
+
+                // Login successful - redirect to home
+                window.location.href = '/';
+            } catch (error) {
+                // Show error message
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'INICIAR SESIÓN';
+            }
+        }
+    </script>
+</body>
+</html>

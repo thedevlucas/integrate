@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios Pendientes - Panel de Administración</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('admin/css/admin.css') %>">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <%- include('partials/topbar') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1>Usuarios Pendientes de Aprobación</h1>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Fecha de Registro</th>
+                                <th>Documentos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                    <td>
+                                        <div class="user-info">
+                                            <img src="<%= getFile('global/assets/images/avatar.png') %>" alt="<%= user.fullname %>">
+                                            <span><%= user.fullname %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= user.email %></td>
+                                    <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                                    <td>
+                                        <div class="document-links">
+                                            <a href="/uploads/<%= user.university_degree %>" target="_blank" class="document-link">
+                                                <i class='bx bx-file'></i>
+                                                Título Universitario
+                                            </a>
+                                            <a href="/uploads/<%= user.transfer_ticket %>" target="_blank" class="document-link">
+                                                <i class='bx bx-receipt'></i>
+                                                Comprobante de Pago
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <button class="action-btn approve" onclick="approveUser('<%= user.id %>')">
+                                                <i class='bx bx-check'></i>
+                                            </button>
+                                            <button class="action-btn reject" onclick="rejectUser('<%= user.id %>')">
+                                                <i class='bx bx-x'></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function approveUser(userId) {
+            if (confirm('¿Estás seguro de que deseas aprobar este usuario?')) {
+                try {
+                    const response = await fetch(`/api/users/${userId}/approve`, {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+                    
+                    // Refresh the page
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error approving user:', error);
+                    alert('Error al aprobar el usuario');
+                }
+            }
+        }
+
+        async function rejectUser(userId) {
+            if (confirm('¿Estás seguro de que deseas rechazar este usuario?')) {
+                try {
+                    const response = await fetch(`/api/users/${userId}/reject`, {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+                    
+                    // Refresh the page
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error rejecting user:', error);
+                    alert('Error al rechazar el usuario');
+                }
+            }
+        }
+    </script>
+
+    <script src="<%= getFile('admin/js/admin.js') %>"></script>
+</body>
+</html>

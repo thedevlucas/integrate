@@ -1,0 +1,46 @@
+<header class="admin-topbar">
+    <div class="topbar-left">
+        <button class="mobile-sidebar-toggle">
+            <i class='bx bx-menu'></i>
+        </button>
+        <div class="breadcrumbs">
+            <a href="/control">Inicio</a>
+            <i class='bx bx-chevron-right'></i>
+            <span>Dashboard</span>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <div class="topbar-actions">
+            <!-- <button class="action-btn">
+                <i class='bx bx-bell'></i>
+                <span class="notification-badge">3</span>
+            </button> -->
+            <div class="user-menu">
+                <button class="user-menu-trigger">
+                    <img src="<%= user.avatar ? '/uploads/' + user.avatar : getFile('global/assets/images/avatar.png') %>" alt="Avatar" class="user-avatar">
+                    <span class="user-name"><%= user.fullname %></span>
+                    <i class='bx bx-chevron-down'></i>
+                </button>
+                <div class="user-menu-dropdown">
+                    <a href="/profile/<%= user.id %>" class="menu-item">
+                        <i class='bx bx-user'></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                    <a href="/control" class="menu-item">
+                        <i class='bx bx-user'></i>
+                        <span>Administración</span>
+                    </a>
+                    <a href="/settings/account" class="menu-item">
+                        <i class='bx bx-cog'></i>
+                        <span>Ajustes</span>
+                    </a>
+                    <a href="/logout" class="menu-item">
+                        <i class='bx bx-log-out'></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

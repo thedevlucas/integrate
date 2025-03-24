@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Panel de Administración</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('admin/css/admin.css') %>">
+</head>
+<body>
+    <div class="admin-layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="admin-main">
+            <%- include('partials/topbar') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1>Ajustes de filtros</h1>
+                </div>
+
+                <!-- Filter Categories Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2>Categorías de Filtros</h2>
+                        <button class="primary-button" onclick="toggleFilterCategoryForm()">
+                            <i class='bx bx-plus'></i>
+                            Nueva Categoría de Filtro
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Opciones</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filterCategoriesTableBody">
+                                <!-- Filter categories will be loaded here -->
+                            </tbody>
+                        </table>
+                        <!-- Dynamic Filter Category Form -->
+                        <div id="filterCategoryFormContainer" class="dynamic-form-container" style="display: none;">
+                            <form id="filterCategoryForm" class="dynamic-form" onsubmit="handleFilterCategorySubmit(event)">
+                                <input type="hidden" id="filterCategoryId" name="id" value="">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="filterCategoryName">Nombre de la Categoría</label>
+                                        <input type="text" id="filterCategoryName" name="name" required>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="secondary-button" onclick="toggleFilterCategoryForm()">
+                                            <i class='bx bx-x'></i>
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" class="primary-button">
+                                            <i class='bx bx-check'></i>
+                                            <span id="filterCategorySubmitText">Guardar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Options Modal -->
+                <div id="filterOptionsModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Opciones de Filtro</h2>
+                            <button class="close-button" onclick="closeFilterOptionsModal()">
+                                <i class='bx bx-x'></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="filterOptionForm" onsubmit="handleFilterOptionSubmit(event)">
+                                <input type="hidden" id="currentCategoryId" name="categoryId">
+                                <div class="form-group">
+                                    <label for="filterOptionName">Nueva Opción</label>
+                                    <input type="text" id="filterOptionName" name="name" required>
+                                </div>
+                                <button type="submit" class="primary-button">
+                                    <i class='bx bx-plus'></i>
+                                    Agregar Opción
+                                </button>
+                            </form>
+                            <div class="filter-options-list" id="filterOptionsList">
+                                <!-- Filter options will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Locations Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2>Ubicaciones</h2>
+                        <button class="primary-button" onclick="toggleLocationForm()">
+                            <i class='bx bx-plus'></i>
+                            Nueva Ubicación
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationsTableBody">
+                                <!-- Locations will be loaded here -->
+                            </tbody>
+                        </table>
+                        <!-- Dynamic Location Form -->
+                        <div id="locationFormContainer" class="dynamic-form-container" style="display: none;">
+                            <form id="locationForm" class="dynamic-form" onsubmit="handleLocationSubmit(event)">
+                                <input type="hidden" id="locationId" name="id" value="">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="locationName">Nombre de la Ubicación</label>
+                                        <input type="text" id="locationName" name="name" required>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="secondary-button" onclick="toggleLocationForm()">
+                                            <i class='bx bx-x'></i>
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" class="primary-button">
+                                            <i class='bx bx-check'></i>
+                                            <span id="locationSubmitText">Guardar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2>Categorías Profesionales</h2>
+                        <button class="primary-button" onclick="toggleCategoryForm()">
+                            <i class='bx bx-plus'></i>
+                            Nueva Categoría
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                        <!-- Dynamic Category Form -->
+                        <div id="categoryFormContainer" class="dynamic-form-container" style="display: none;">
+                            <form id="categoryForm" class="dynamic-form" onsubmit="handleCategorySubmit(event)">
+                                <input type="hidden" id="categoryId" name="id" value="">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="categoryName">Nombre de la Categoría</label>
+                                        <input type="text" id="categoryName" name="name" required>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="secondary-button" onclick="toggleCategoryForm()">
+                                            <i class='bx bx-x'></i>
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" class="primary-button">
+                                            <i class='bx bx-check'></i>
+                                            <span id="categorySubmitText">Guardar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orientations Section -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <h2>Orientaciones</h2>
+                        <button class="primary-button" onclick="toggleOrientationForm()">
+                            <i class='bx bx-plus'></i>
+                            Nueva Orientación
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orientationsTableBody">
+                                <!-- Orientations will be loaded here -->
+                            </tbody>
+                        </table>
+                        <!-- Dynamic Orientation Form -->
+                        <div id="orientationFormContainer" class="dynamic-form-container" style="display: none;">
+                            <form id="orientationForm" class="dynamic-form" onsubmit="handleOrientationSubmit(event)">
+                                <input type="hidden" id="orientationId" name="id" value="">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="orientationName">Nombre de la Orientación</label>
+                                        <input type="text" id="orientationName" name="name" required>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" class="secondary-button" onclick="toggleOrientationForm()">
+                                            <i class='bx bx-x'></i>
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" class="primary-button">
+                                            <i class='bx bx-check'></i>
+                                            <span id="orientationSubmitText">Guardar</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFilterCategories();
+            loadLocations();
+            loadCategories();
+            loadOrientations();
+        });
+
+        // Filter Categories functionality
+        async function loadFilterCategories() {
+            try {
+                const response = await fetch('/api/admin/filter-categories');
+                const categories = await response.json();
+                
+                const tbody = document.getElementById('filterCategoriesTableBody');
+                tbody.innerHTML = categories.map(category => `
+                    <tr>
+                        <td>#${category.id.toString().padStart(3, '0')}</td>
+                        <td>${category.name}</td>
+                        <td>
+                            <button class="action-btn edit" onclick="showFilterOptions('${category.id}', '${encodeURIComponent(category.name)}')">
+                                <i class='bx bx-list-ul'></i>
+                            </button>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" onclick="editFilterCategory('${category.id}', '${encodeURIComponent(category.name)}')">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class="action-btn delete" onclick="deleteFilterCategory('${category.id}')">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading filter categories:', error);
+                alert('Error al cargar las categorías de filtros');
+            }
+        }
+
+        function editFilterCategory(id, name) {
+            document.getElementById('filterCategoryId').value = id;
+            document.getElementById('filterCategoryName').value = decodeURIComponent(name);
+            document.getElementById('filterCategorySubmitText').textContent = 'Actualizar';
+            toggleFilterCategoryForm(true);
+        }
+
+        function showFilterOptions(categoryId, categoryName) {
+            document.getElementById('currentCategoryId').value = categoryId;
+            document.getElementById('filterOptionsModal').style.display = 'block';
+            loadFilterOptions(categoryId);
+        }
+
+        function toggleFilterCategoryForm(isEdit = false) {
+            const container = document.getElementById('filterCategoryFormContainer');
+            const form = document.getElementById('filterCategoryForm');
+            const submitText = document.getElementById('filterCategorySubmitText');
+            
+            if (container.style.display === 'none') {
+                if (!isEdit) {
+                    form.reset();
+                    document.getElementById('filterCategoryId').value = '';
+                    submitText.textContent = 'Guardar';
+                }
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function handleFilterCategorySubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const categoryId = document.getElementById('filterCategoryId').value;
+            const name = document.getElementById('filterCategoryName').value;
+            
+            try {
+                const url = categoryId ? 
+                    `/api/admin/filter-categories/${categoryId}` : 
+                    '/api/admin/filter-categories';
+                
+                const response = await fetch(url, {
+                    method: categoryId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error);
+                }
+
+                await loadFilterCategories();
+                toggleFilterCategoryForm();
+            } catch (error) {
+                console.error('Error saving filter category:', error);
+                alert(error.message || 'Error al guardar la categoría de filtro');
+            }
+        }
+
+        async function deleteFilterCategory(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta categoría de filtro?')) {
+                try {
+                    const response = await fetch(`/api/admin/filter-categories/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+
+                    await loadFilterCategories();
+                } catch (error) {
+                    console.error('Error deleting filter category:', error);
+                    alert(error.message || 'Error al eliminar la categoría de filtro');
+                }
+            }
+        }
+
+        // Filter Options Modal functionality
+        function closeFilterOptionsModal() {
+            document.getElementById('filterOptionsModal').style.display = 'none';
+            document.getElementById('filterOptionForm').reset();
+        }
+
+        async function loadFilterOptions(categoryId) {
+            try {
+                const response = await fetch(`/api/admin/filter-categories/${categoryId}/options`);
+                const options = await response.json();
+                
+                const optionsList = document.getElementById('filterOptionsList');
+                optionsList.innerHTML = options.map(option => `
+                    <div class="filter-option-item">
+                        <span>${option.name}</span>
+                        <button class="delete-option" onclick="deleteFilterOption('${option.id}')">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading filter options:', error);
+                alert('Error al cargar las opciones de filtro');
+            }
+        }
+
+        async function handleFilterOptionSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const categoryId = document.getElementById('currentCategoryId').value;
+            const name = document.getElementById('filterOptionName').value;
+            
+            try {
+                const response = await fetch(`/api/admin/filter-categories/${categoryId}/options`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error);
+                }
+
+                form.reset();
+                await loadFilterOptions(categoryId);
+            } catch (error) {
+                console.error('Error saving filter option:', error);
+                alert(error.message || 'Error al guardar la opción de filtro');
+            }
+        }
+
+        async function deleteFilterOption(optionId) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta opción?')) {
+                try {
+                    const categoryId = document.getElementById('currentCategoryId').value;
+                    const response = await fetch(`/api/admin/filter-categories/${categoryId}/options/${optionId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+
+                    await loadFilterOptions(categoryId);
+                } catch (error) {
+                    console.error('Error deleting filter option:', error);
+                    alert(error.message || 'Error al eliminar la opción de filtro');
+                }
+            }
+        }
+
+        // Locations functionality
+        async function loadLocations() {
+            try {
+                const response = await fetch('/api/admin/locations');
+                const locations = await response.json();
+                
+                const tbody = document.getElementById('locationsTableBody');
+                tbody.innerHTML = locations.map(location => `
+                    <tr>
+                        <td>#${location.id.toString().padStart(3, '0')}</td>
+                        <td>${location.name}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" onclick="editLocation(${location.id}, '${location.name}')">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class="action-btn delete" onclick="deleteLocation(${location.id})">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading locations:', error);
+                alert('Error al cargar las ubicaciones');
+            }
+        }
+
+        function toggleLocationForm(isEdit = false) {
+            const container = document.getElementById('locationFormContainer');
+            const form = document.getElementById('locationForm');
+            const submitText = document.getElementById('locationSubmitText');
+            
+            if (container.style.display === 'none') {
+                if (!isEdit) {
+                    form.reset();
+                    document.getElementById('locationId').value = '';
+                    submitText.textContent = 'Guardar';
+                }
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function handleLocationSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const locationId = document.getElementById('locationId').value;
+            const name = document.getElementById('locationName').value;
+            
+            try {
+                const url = locationId ? 
+                    `/api/admin/locations/${locationId}` : 
+                    '/api/admin/locations';
+                
+                const response = await fetch(url, {
+                    method: locationId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error);
+                }
+
+                await loadLocations();
+                toggleLocationForm();
+            } catch (error) {
+                console.error('Error saving location:', error);
+                alert(error.message || 'Error al guardar la ubicación');
+            }
+        }
+
+        function editLocation(id, name) {
+            document.getElementById('locationId').value = id;
+            document.getElementById('locationName').value = name;
+            document.getElementById('locationSubmitText').textContent = 'Actualizar';
+            toggleLocationForm(true);
+        }
+
+        async function deleteLocation(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta ubicación?')) {
+                try {
+                    const response = await fetch(`/api/admin/locations/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+
+                    await loadLocations();
+                } catch (error) {
+                    console.error('Error deleting location:', error);
+                    alert(error.message || 'Error al eliminar la ubicación');
+                }
+            }
+        }
+
+        // Categories functionality
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/admin/categories');
+                const categories = await response.json();
+                
+                const tbody = document.getElementById('categoriesTableBody');
+                tbody.innerHTML = categories.map(category => `
+                    <tr>
+                        <td>#${category.id.toString().padStart(3, '0')}</td>
+                        <td>${category.name}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" onclick="editCategory(${category.id}, '${category.name}')">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class="action-btn delete" onclick="deleteCategory(${category.id})">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                alert('Error al cargar las categorías');
+            }
+        }
+
+        function toggleCategoryForm(isEdit = false) {
+            const container = document.getElementById('categoryFormContainer');
+            const form = document.getElementById('categoryForm');
+            const submitText = document.getElementById('categorySubmitText');
+            
+            if (container.style.display === 'none') {
+                if (!isEdit) {
+                    form.reset();
+                    document.getElementById('categoryId').value = '';
+                    submitText.textContent = 'Guardar';
+                }
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function handleCategorySubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const categoryId = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            
+            try {
+                const url = categoryId ? 
+                    `/api/admin/categories/${categoryId}` : 
+                    '/api/admin/categories';
+                
+                const response = await fetch(url, {
+                    method: categoryId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error);
+                }
+
+                await loadCategories();
+                toggleCategoryForm();
+            } catch (error) {
+                console.error('Error saving category:', error);
+                alert(error.message || 'Error al guardar la categoría');
+            }
+        }
+
+        function editCategory(id, name) {
+            document.getElementById('categoryId').value = id;
+            document.getElementById('categoryName').value = name;
+            document.getElementById('categorySubmitText').textContent = 'Actualizar';
+            toggleCategoryForm(true);
+        }
+
+        async function deleteCategory(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+                try {
+                    const response = await fetch(`/api/admin/categories/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+
+                    await loadCategories();
+                } catch (error) {
+                    console.error('Error deleting category:', error);
+                    alert(error.message || 'Error al eliminar la categoría');
+                }
+            }
+        }
+
+        // Orientations functionality
+        async function loadOrientations() {
+            try {
+                const response = await fetch('/api/admin/orientations');
+                const orientations = await response.json();
+                
+                const tbody = document.getElementById('orientationsTableBody');
+                tbody.innerHTML = orientations.map(orientation => `
+                    <tr>
+                        <td>#${orientation.id.toString().padStart(3, '0')}</td>
+                        <td>${orientation.name}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="action-btn edit" onclick="editOrientation(${orientation.id}, '${orientation.name}')">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class="action-btn delete" onclick="deleteOrientation(${orientation.id})">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading orientations:', error);
+                alert('Error al cargar las orientaciones');
+            }
+        }
+
+        function toggleOrientationForm(isEdit = false) {
+            const container = document.getElementById('orientationFormContainer');
+            const form = document.getElementById('orientationForm');
+            const submitText = document.getElementById('orientationSubmitText');
+            
+            if (container.style.display === 'none') {
+                if (!isEdit) {
+                    form.reset();
+                    document.getElementById('orientationId').value = '';
+                    submitText.textContent = 'Guardar';
+                }
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function handleOrientationSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const orientationId = document.getElementById('orientationId').value;
+            const name = document.getElementById('orientationName').value;
+            
+            try {
+                const url = orientationId ? 
+                    `/api/admin/orientations/${orientationId}` : 
+                    '/api/admin/orientations';
+                
+                const response = await fetch(url, {
+                    method: orientationId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error);
+                }
+
+                await loadOrientations();
+                toggleOrientationForm();
+            } catch (error) {
+                console.error('Error saving orientation:', error);
+                alert(error.message || 'Error al guardar la orientación');
+            }
+        }
+
+        function editOrientation(id, name) {
+            document.getElementById('orientationId').value = id;
+            document.getElementById('orientationName').value = name;
+            document.getElementById('orientationSubmitText').textContent = 'Actualizar';
+            toggleOrientationForm(true);
+        }
+
+        async function deleteOrientation(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta orientación?')) {
+                try {
+                    const response = await fetch(`/api/admin/orientations/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+
+                    await loadOrientations();
+                } catch (error) {
+                    console.error('Error deleting orientation:', error);
+                    alert(error.message || 'Error al eliminar la orientación');
+                }
+            }
+        }
+    </script>
+
+    <script src="<%= getFile('admin/js/admin.js') %>"></script>
+</body>
+</html>

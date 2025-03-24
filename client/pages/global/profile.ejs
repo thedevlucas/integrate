@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= professional.fullname %> - Perfil Profesional</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<%= getFile('global/css/styles.css') %>">
+    <link rel="stylesheet" href="<%= getFile('global/css/profile.css') %>">
+    <style>
+        .header {
+            background-color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Contact Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .contact-modal {
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: color var(--transition-normal);
+        }
+
+        .modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .contact-modal h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .contact-info {
+            display: none;
+        }
+
+        .contact-info.visible {
+            display: block;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .contact-item-content {
+            flex: 1;
+        }
+
+        .contact-item-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.2rem;
+        }
+
+        .contact-item-value {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner.visible {
+            display: block;
+        }
+
+        .loading-spinner i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            display: none;
+            color: #EF4444;
+            text-align: center;
+            padding: 1rem;
+            background-color: #FEE2E2;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <%- include('header') %>    
+
+    <main class="profile-page">
+        <div class="profile-container">
+            <section class="profile-header">
+                <div class="profile-image">
+                    <img src="<%= '/uploads/' + professional.avatar || getFile('global/assets/images/avatar.png') %>" alt="<%= professional.fullname %>">
+                </div>
+                <div class="profile-info">
+                    <h1><%= professional.fullname %></h1>
+                    <h2><%= professional.category_name %></h2>
+                    <p class="patients">
+                        <% if (professional.patients_type) { %>
+                            <%= Object.entries(professional.patients_type)
+                                .filter(([key, value]) => value)
+                                .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1))
+                                .join(', ') %>
+                        <% } %>
+                    </p>
+                    <div class="modalities">
+                        <% if (professional.online) { %>
+                            <span class="tag online">Online</span>
+                        <% } %>
+                        <% if (professional.presential) { %>
+                            <span class="tag presential">Presencial</span>
+                        <% } %>
+                    </div>
+                    <button class="contact-btn" onclick="showContactModal()">CONTACTARSE</button>
+                </div>
+            </section>
+
+            <section class="profile-content">
+                <% if (professional.orientation_name) { %>
+                    <div class="info-section">
+                        <h3>ORIENTACIÓN</h3>
+                        <p><%= professional.orientation_name %></p>
+
+                    </div>
+                <% } %>
+                
+                <% if (professional.short_description) { %>
+                    <div class="info-section">
+                        <h3>DESCRIPCIÓN:</h3>
+                        <p><%= professional.short_description %></p>
+                    </div>
+                <% } %>
+
+                <% if (professional.education) { %>
+                    <div class="info-section">
+                        <h3>FORMACIÓN ACADÉMICA</h3>
+                        <p><%= professional.education %></p>
+                    </div>
+                <% } %>
+
+                <% if (professional.languages && Array.isArray(professional.languages.languages)) { %>
+                    <div class="info-section">
+                        <h3>IDIOMAS</h3>
+                        <p><%= professional.languages.languages.join(', ') %></p>
+                    </div>
+                <% } %>
+            </section>
+        </div>
+    </main>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="contact-modal">
+            <button class="modal-close" onclick="hideContactModal()">
+                <i class='bx bx-x'></i>
+            </button>
+            
+            <h2>Información de Contacto</h2>
+            
+            <div class="error-message" id="errorMessage">
+                Ha ocurrido un error al obtener la información de contacto.
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner">
+                <i class='bx bx-loader-alt'></i>
+            </div>
+
+            <div class="contact-info" id="contactInfo">
+                <div class="contact-item">
+                    <i class='bx bx-phone'></i>
+                    <div class="contact-item-content">
+                        <div class="contact-item-label">Teléfono</div>
+                        <div class="contact-item-value" id="phoneValue"></div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class='bx bx-envelope'></i>
+                    <div class="contact-item-content">
+                        <div class="contact-item-label">Correo Electrónico</div>
+                        <div class="contact-item-value" id="emailValue"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('footer') %>    
+
+    <script>
+        const modal = document.getElementById('contactModal');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const contactInfo = document.getElementById('contactInfo');
+        const errorMessage = document.getElementById('errorMessage');
+        const phoneValue = document.getElementById('phoneValue');
+        const emailValue = document.getElementById('emailValue');
+    
+        // Store contact info after first successful fetch
+        let contactInfoFetched = false;
+    
+        function showContactModal() {
+            modal.classList.add('active');
+            
+            // Always show contact info immediately if we already have it
+            if (contactInfoFetched) {
+                loadingSpinner.classList.remove('visible');
+                contactInfo.classList.add('visible');
+                errorMessage.classList.remove('visible');
+            } else {
+                loadingSpinner.classList.add('visible');
+                contactInfo.classList.remove('visible');
+                errorMessage.classList.remove('visible');
+            }
+    
+            // Always make the API call to increment the counter
+            fetch('/api/contact/<%= professional.id %>', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Error al obtener la información de contacto');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!contactInfoFetched) {
+                    loadingSpinner.classList.remove('visible');
+                    contactInfo.classList.add('visible');
+                    
+                    // Verificación para phoneValue
+                    const phone = '<%= professional.phone %>';
+                    phoneValue.textContent = (phone && phone !== '0' && phone !== '' && phone !== 'nul') 
+                        ? phone 
+                        : 'No disponible';
+    
+                    // Verificación para emailValue
+                    const email = '<%= professional.email %>';
+                    emailValue.textContent = (email && email !== '' && email !== 'null') 
+                        ? email 
+                        : 'No disponible';
+    
+                    // Mark as fetched
+                    contactInfoFetched = true;
+                }
+            })
+            .catch(error => {
+                if (!contactInfoFetched) {
+                    loadingSpinner.classList.remove('visible');
+                    errorMessage.textContent = error.message;
+                    errorMessage.classList.add('visible');
+                }
+            });
+        }
+    
+        function hideContactModal() {
+            modal.classList.remove('active');
+        }
+    
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideContactModal();
+            }
+        });
+    
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                hideContactModal();
+            }
+        });
+    </script>
+    
+</body>
+</html>
