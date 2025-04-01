@@ -112,6 +112,7 @@
     </style>
 </head>
 <body>
+    
     <div class="admin-layout">
         <%- include('partials/sidebar') %>
 
@@ -141,17 +142,17 @@
                                 
                                 <div class="form-group">
                                     <label for="fullname">Nombre Completo</label>
-                                    <input type="text" id="fullname" name="fullname" value="<%= user.fullname %>" required>
+                                    <input type="text" id="fullname" name="fullname" value="<%= clientRequest.fullname %>" required>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="email">Correo Electrónico</label>
-                                    <input type="email" id="email" name="email" value="<%= user.email %>" required>
+                                    <input type="email" id="email" name="email" value="<%= clientRequest.email %>" required>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="phone">Teléfono</label>
-                                    <input type="tel" id="phone" name="phone" value="<%= user.phone || '' %>">
+                                    <input type="tel" id="phone" name="phone" value="<%= clientRequest.phone || '' %>">
                                 </div>
 
                                 <div class="form-group">
@@ -182,14 +183,14 @@
                                 <div class="form-group">
                                     <label for="status">Estado</label>
                                     <select id="status" name="status" required>
-                                        <option value="active" <%= user.status === 'active' ? 'selected' : '' %>>Activo</option>
-                                        <option value="pending" <%= user.status === 'pending' ? 'selected' : '' %>>Pendiente</option>
-                                        <option value="inactive" <%= user.status === 'inactive' ? 'selected' : '' %>>Inactivo</option>
+                                        <option value="active" <%= clientRequest.status === 'active' ? 'selected' : '' %>>Activo</option>
+                                        <option value="pending" <%= clientRequest.status === 'pending' ? 'selected' : '' %>>Pendiente</option>
+                                        <option value="inactive" <%= clientRequest.status === 'inactive' ? 'selected' : '' %>>Inactivo</option>
                                     </select>
                                 </div>
 
                                 <div class="checkbox-wrapper">
-                                    <input type="checkbox" id="recommended" name="recommended" value="1" <%= user.recommended ? 'checked' : '' %>>
+                                    <input type="checkbox" id="recommended" name="recommended" value="1" <%= clientRequest.recommended ? 'checked' : '' %>>
                                     <label for="recommended">Usuario Recomendado</label>
                                 </div>
 
@@ -222,18 +223,18 @@
                             </div>
                         </div>
 
-                        <% if (user.university_degree || user.transfer_ticket) { %>
+                        <% if (clientRequest.university_degree || clientRequest.transfer_ticket) { %>
                             <div class="document-preview">
                                 <h3>Documentos del Usuario</h3>
                                 <div class="documents-grid">
-                                    <% if (user.university_degree) { %>
+                                    <% if (clientRequest.university_degree) { %>
                                         <div class="document-card">
                                             <h4>Título Universitario</h4>
                                             <div class="document-image">
-                                                <img src="/uploads/<%= user.university_degree %>" alt="Título Universitario">
+                                                <img src="/uploads/<%= clientRequest.university_degree %>" alt="Título Universitario">
                                             </div>
                                             <div class="document-actions">
-                                                <a href="/uploads/<%= user.university_degree %>" target="_blank" class="view-doc">
+                                                <a href="/uploads/<%= clientRequest.university_degree %>" target="_blank" class="view-doc">
                                                     <i class='bx bx-fullscreen'></i>
                                                     Ver Completo
                                                 </a>
@@ -241,14 +242,14 @@
                                         </div>
                                     <% } %>
 
-                                    <% if (user.transfer_ticket) { %>
+                                    <% if (clientRequest.transfer_ticket) { %>
                                         <div class="document-card">
                                             <h4>Comprobante de Pago</h4>
                                             <div class="document-image">
-                                                <img src="/uploads/<%= user.transfer_ticket %>" alt="Comprobante de Pago">
+                                                <img src="/uploads/<%= clientRequest.transfer_ticket %>" alt="Comprobante de Pago">
                                             </div>
                                             <div class="document-actions">
-                                                <a href="/uploads/<%= user.transfer_ticket %>" target="_blank" class="view-doc">
+                                                <a href="/uploads/<%= clientRequest.transfer_ticket %>" target="_blank" class="view-doc">
                                                     <i class='bx bx-fullscreen'></i>
                                                     Ver Completo
                                                 </a>
@@ -288,9 +289,9 @@
                 const orientationSelect = document.getElementById('orientation_id');
 
                 // Get preselected values from server
-                const userCategoryId = <%= user.category_id || 'null' %>;
-                const userOrientationId = <%= user.orientation_id || 'null' %>;
-                const userLocationId = <%= user.location_id || 'null' %>;
+                const userCategoryId = <%= clientRequest.category_id || 'null' %>;
+                const userOrientationId = <%= clientRequest.orientation_id || 'null' %>;
+                const userLocationId = <%= clientRequest.location_id || 'null' %>;
                 const userData = <%- JSON.stringify(user || {}) %>;
 
                 // Populate categories
@@ -414,7 +415,7 @@
                     formData.append('recommended', '0');
                 }
 
-                const response = await fetch('/api/users/<%= user.id %>/update', {
+                const response = await fetch('/api/users/<%= clientRequest.id %>/update', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -437,7 +438,7 @@
         async function confirmDelete() {
             if (confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) {
                 try {
-                    const response = await fetch('/api/users/<%= user.id %>', {
+                    const response = await fetch('/api/users/<%= clientRequest.id %>', {
                         method: 'DELETE'
                     });
 

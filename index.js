@@ -634,10 +634,10 @@ app.get('/control/users/edit/:id', requireAuth, async (req, res) => {
       filters[filter.category_id].push(filter.option_id);
     });
 
-    const user = users[0];
-    user.filters = filters;
+    const clientRequest = users[0];
+    clientRequest.filters = filters;
 
-    res.render('admin/user_edit', { user });
+    res.render('admin/user_edit', { clientRequest });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).render('global/return_page', { error: 500 });
