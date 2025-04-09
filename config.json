@@ -1,6 +1,6 @@
 {
     "web": {
-        "port": 443
+        "port": 8080
     },
     "database": {
         "host": "localhost",
