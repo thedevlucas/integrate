@@ -1,19 +1,19 @@
 {
     "web": {
-        "port": 8080
+        "port": 3000
     },
     "database": {
-        "host": "localhost",
-        "port": 27017,
+        "host": "127.0.0.1",
+        "port": 3306,
         "db": "integrate",
-        "username": "root",
-        "password": ""
+        "username": "integrate",
+        "password": "test"
     },
     "mail": {
         "host": "smtp.gmail.com",
         "port": 465,
         "user": "integrate@e-integra.com",
-        "pass": "xjjl jlig nabr ktof"
+        "pass": "tuuz aaet gudt wnqy"
     },
     "auth": {
         "secret": "a9915c1f-788f-4b99-bad5-91080258006d"

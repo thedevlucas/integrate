@@ -11,6 +11,9 @@ const { body, validationResult } = require('express-validator');
 const multer = require('multer');
 const sharp = require('sharp');
 const config = require('./config.json');
+const mailMessages = require('./config/mailMessages');
+const validator = require('validator');
+
 
 const app = express();
 const PORT = config.web.port;
@@ -78,15 +81,13 @@ app.use(session({
 
 app.use(useragent.express());
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'client/pages'));
 app.set('trust proxy', true);
 app.use(express.static(path.join(__dirname, 'client/public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 app.disable("x-powered-by");
 
 // Security headers
@@ -148,7 +149,14 @@ const requireAuth = (req, res, next) => {
 };
 
 const registerValidation = [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().custom((value, { req }) => {
+    const normalizedEmail = validator.normalizeEmail(value, {
+      all_lowercase: true,
+      remove_dots: false
+    });
+    req.body.email = normalizedEmail;
+    return true;
+  }),
   body('fullname').trim().notEmpty(),
   body('password').isLength({ min: 6 }),
   body('confirm-password').custom((value, { req }) => {
@@ -160,7 +168,14 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().custom((value, { req }) => {
+    const normalizedEmail = validator.normalizeEmail(value, {
+      all_lowercase: true,
+      remove_dots: false
+    });
+    req.body.email = normalizedEmail;
+    return true;
+  }),
   body('password').notEmpty()
 ];
 
@@ -506,59 +521,22 @@ app.post('/register-professional', upload.fields([
       [email, fullname, hashedPassword, ip, universityDegree, transferTicket]
     );
 
+    const mailContentUser = mailMessages.inProcess({ fullname, email, ip });
+    const mailContentAdmin = mailMessages.inProcess({ fullname, email, ip });
+
     // Enviar email de confirmación
     await transporter.sendMail({
       from: config.mail.user,
       to: email,
-      subject: 'Registro Profesional en Proceso',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-        <h1 style="color: #f8c054; text-align: center;">Registro en proceso</h1>
-        <p style="font-size: 16px;">Gracias por registrarte, <strong>${fullname}</strong>.</p>
-        <p style="font-size: 16px;">Estamos procesando tu solicitud y te notificaremos cuando sea aprobada.</p>
-        
-        <h2 style="color: #555; border-bottom: 2px solid #ddd; padding-bottom: 5px;">Detalles del registro</h2>
-        <ul style="list-style: none; padding: 0;">
-          <li><strong>Nombre:</strong> ${fullname}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>IP de registro:</strong> ${ip}</li>
-          <li><strong>Fecha de registro:</strong> ${new Date().toLocaleString()}</li>
-        </ul>
-        
-        <div style="text-align: center; margin-top: 20px;">
-          <img src="https://professionals.lucasj2.com/global/assets/images/logo_black.png" style="max-width: 100px;" alt="Logo" />
-        </div>
-      </div>
-      `
+      subject: mailContentUser.subject,
+      html: mailContentUser.html
     });
 
     await transporter.sendMail({
       from: config.mail.user,
       to: config.mail.user,
-      subject: '¡Se solicitó un registro para ' + fullname + '!',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-          <h1 style="color: #f8c054; text-align: center;">Nueva solicitud de registro</h1>
-          <p style="font-size: 16px;">Se ha recibido una solicitud de registro de <strong>${fullname}</strong>.</p>
-          <p style="font-size: 16px;">Para revisarla, ingresa al panel de administración.</p>
-          
-          <h2 style="color: #555; border-bottom: 2px solid #ddd; padding-bottom: 5px;">Detalles del registro</h2>
-          <ul style="list-style: none; padding: 0;">
-            <li><strong>Nombre:</strong> ${fullname}</li>
-            <li><strong>Email:</strong> ${email}</li>
-            <li><strong>IP de registro:</strong> ${ip}</li>
-            <li><strong>Fecha de registro:</strong> ${new Date().toLocaleString()}</li>
-          </ul>
-          
-          <div style="text-align: center; margin-top: 20px;">
-            <a href="https://e-integra.com/control/pending" style="background-color: #28a745; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;">Ingresar</a>
-          </div>
-          
-          <div style="text-align: center; margin-top: 20px;">
-            <img src="https://professionals.lucasj2.com/global/assets/images/logo_black.png" style="max-width: 100px;" alt="Logo" />
-          </div>
-        </div>
-      `
+      subject: mailContentAdmin.subject,
+      html: mailContentAdmin.html
     });
 
     res.json({ success: true, message: 'Registro enviado correctamente' });
@@ -914,15 +892,14 @@ app.post('/api/users/:id/approve', requireAuth, async (req, res) => {
     
     await pool.query('UPDATE users SET status = "active" WHERE id = ?', [id]);
     const [user] = await pool.query('SELECT email FROM users WHERE id = ?', [id]);
-    
+
+    const content = mailMessages.approved();
+
     await transporter.sendMail({
       from: config.mail.user,
       to: user[0].email,
-      subject: 'Registro Aprobado',
-      html: `
-        <h1>¡Tu registro ha sido aprobado!</h1>
-        <p>Ya puedes acceder a tu cuenta y completar tu perfil profesional.</p>
-      `
+      subject: content.subject,
+      html: content.html
     });
 
     res.json({ success: true });
@@ -937,15 +914,14 @@ app.post('/api/users/:id/reject', requireAuth, async (req, res) => {
     const [user] = await pool.query('SELECT email FROM users WHERE id = ?', [id]);
     
     await pool.query('DELETE FROM users WHERE id = ?', [id]);
+
+    const content = mailMessages.rejected();
     
     await transporter.sendMail({
       from: config.mail.user,
       to: user[0].email,
-      subject: 'Registro No Aprobado',
-      html: `
-        <h1>Tu registro no ha sido aprobado</h1>
-        <p>Lo sentimos, pero tu solicitud de registro no cumple con nuestros requisitos.</p>
-      `
+      subject: content.subject,
+      html: content.html
     });
 
     res.json({ success: true });
